@@ -1,0 +1,36 @@
+﻿html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#can1 {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+#div1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+#b0, #b1, #b2, #b3 {
+  border: 0;
+  width: 180px;
+  line-height: 2.5;
+  padding: 0 20px;
+  font-size: 1rem;
+  text-align: center;
+  color: #fff;
+  text-shadow: 2px 2px 2px #000;
+  border-radius: 10px; 
+  background-image: linear-gradient(to top left, rgba(0, 0, 0, 3), rgba(0, 0, 0, .2), rgba(0, 0, 0, 0));
+  box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6), inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+#b1:active, #b2:active, #b3:active, #b0:active {
+  box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6), inset 2px 2px 3px rgba(0, 0, 0, .6);
+}

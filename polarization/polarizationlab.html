@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Polarization lab</title>
+    <meta charset="UTF-8">
+    <link href="mystyles.css" rel="stylesheet" type="text/css">
+    <script src="../files/three.min.js"></script>
+    <script src="../files/dat.gui.min.js"></script>
+    <script src="globals.js"></script>
+    <script src="partsfunctions.js"></script>
+    <script src="mousefunctions.js"></script>
+    <script src="mytextures.js"></script>
+    <script src="myphysics.js"></script>
+</head>
+
+<body>
+    <!--set up the HTML page-->
+    <canvas id="can1"></canvas>
+    <div id="div1">
+        <button id="b0">Drag objects</button>
+        <button id="b1">Adjust post height</button>
+        <button id="b2">Rotate postholder</button>
+        <button id="b3">Rotate polarizer</button>
+    </div>
+    <div id="div2">
+        <img id="pmeter" draggable="false" alt="powermeter" src="pmeter.jpg">
+    </div>
+    <input type="text" name="lpow" value="0" id="lpow">
+
+
+<script>
+    "use strict";
+    //set a flag if a button is clicked
+    const button = new Array(4);
+    button[0] = document.querySelector('#b0');
+    button[1] = document.querySelector('#b1');
+    button[2] = document.querySelector('#b2');
+    button[3] = document.querySelector('#b3');
+
+    button[0].style.backgroundColor = "red";
+    for (let j = 1; j < 4; j++) {
+        button[j].style.backgroundColor = "#4863a0";
+    }
+    //set color of selected button to red
+    for (let i = 0; i < 4; i++) {
+        button[i].addEventListener("click", function () {
+            selected = i + 1;
+            for (let j = 0; j < 4; j++) {
+                button[j].style.backgroundColor = "#4863a0";
+            }
+            button[i].style.backgroundColor = "red";
+        });
+    }
+
+    const canvas = document.querySelector('#can1');
+    const div1 = document.querySelector('#div1');
+    const lpow = document.querySelector('#lpow');
+    lpow.value = zero.toFixed(3);
+
+    //set up the gui controls
+    let beamradius = 0.25;
+    let snap = true;
+    const guicontrols = new function () {
+        this.laser_radius = beamradius;
+        this.snap_to_grid = snap;
+
+    };
+    const gui = new dat.GUI({ autoPlace: false });
+    let gui1 = gui.add(guicontrols, 'laser_radius', 0.1, 0.3).name('Beam radius');
+    let gui2 = gui.add(guicontrols, 'snap_to_grid').name('Snap to grid');
+
+    //place the gui controls
+    gui.domElement.style.cssFloat = "right";
+    div1.appendChild(gui.domElement);
+
+    //set up a scene
+    const renderer = new THREE.WebGLRenderer({ canvas });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xdeb887);
+    //position the camera
+    const camera = new THREE.PerspectiveCamera(27, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
+    let cr = 65;
+    let cth = 1.3;
+    let cph = -0.2;
+    camera.position.z = cr * Math.sin(cth) * Math.cos(cph);
+    camera.position.y = cr * Math.cos(cth);
+    camera.position.x = cr * Math.sin(cth) * Math.sin(cph);
+    camera.lookAt(0, 0, 0);
+    scene.add(camera);
+    window.addEventListener("resize", resizeRendererToDisplaySize);
+
+    //add a laser with beam expander
+    const laser = makeLaser();
+    laser.position.x = -0.5;
+    laser.position.z = 25;
+    const extender = makeBeamextender();
+    const beamexit = makeBeamexit();
+    extender.add(beamexit);
+    laser.add(extender);
+    scene.add(laser);
+
+    //the world will hold all the objects to be moved
+    const ground = makeBoard();
+    ground.rotation.x = -Math.PI * 0.5;
+    const world = new THREE.Object3D();
+    world.add(ground);
+
+    //add 7 bases, the bottoms of the bases are at y = 0
+    for (let i = 0; i < 3; i++) {
+        base[i] = makeBase(15.5 - i * 8, -15.5);
+    } //bases for glass slide, power meter and screen
+
+    for (let i = 3; i < elements; i++) {
+        base[i] = makeBase(-15.5, -16.5 + (i - 2) * 8);
+    } //bases viewr and polarizers
+
+    // add postholders, the postholder positions are y = 0
+    for (let i = 0; i < 3; i++) {
+        posthold[i] = makePostholder(2.5);
+    }
+    posthold[3] = makeViewerpostholder();
+
+    for (let i = 4; i < elements; i++) {
+        posthold[i] = makePostholder(2);
+    }
+
+    //add the glass block to postholder
+    const glassslide = makeglass();
+    const slideholder = makeScreenholder();
+    glassslide.position.y = 4;
+    glassslide.position.z = -0.05;
+    slideholder.add(glassslide);
+    slideholder.position.y = 0.25;
+    posthold[0].add(slideholder);
+
+    //add power meter to base 1
+    const meterholder = makeMeterholder();
+    const meter = makeMeter();
+    meter.material = mat00;
+    meter.position.y = 3.9;
+    meterholder.add(meter);
+    meterholder.position.y = 0.35;
+    posthold[1].add(meterholder);
+
+    //add the screen to base 2
+    const screen = makeScreen();
+    const screenholder = makeScreenholder();
+    screen.position.y = 4.2;  //middle of screen is 4.2 units above bottom of screenholder
+    screen.position.z = -0.1;
+    screenholder.add(screen);
+    posthold[2].add(screenholder);
+
+    //add viewer to base 3
+    const viewpost = makeViewerpost();
+    const viewer = makeViewer();
+    viewpost.add(viewer);
+    posthold[3].add(viewpost);
+
+    //add polarizer to bases 4 and 5
+    for (let i = 4; i < elements; i++) {
+        ppost[i] = makePolarizerpost();
+        polarizer[i] = makePolarizer();
+        polarizer[i].add(polplaque[i]);
+        polarizer[i].position.y = 4.2;
+        ppost[i].add(polarizer[i]);
+        ppost[i].position.y = 0.25;
+        posthold[i].add(ppost[i]);
+        polangle[i] = 0;
+    }
+
+    //add the angle scales to the postholders and the postholders to the screen
+    for (let i = 0; i < elements; i++) {       
+            posthold[i].add(angle[i]);
+            base[i].add(posthold[i]);    
+    }
+
+     //finally, add the bases to the world and the world to the scene
+    for (let i = 0; i < elements; i++) {
+        world.add(base[i]);
+        baseangle[i] = 0;
+    }
+    scene.add(world);
+
+    //how to respond to mouse events, respond to wheel and mousedown
+    canvas.addEventListener("wheel", doWheel);
+    canvas.addEventListener("pointerdown", doMouseDown);
+
+    //track the laser beam as it encouters the optical elements
+    laserhit();
+
+    //render the scene
+    render();
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+
+    function resizeRendererToDisplaySize() {
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        renderer.render(scene, camera);
+    }
+
+    gui1.onFinishChange(function (value) {
+        beamradius = 1 * value;
+        laserhit();
+    });
+    gui2.onFinishChange(function (value) {
+        snap = value;
+    });
+</script>
+</body>
+</html>
