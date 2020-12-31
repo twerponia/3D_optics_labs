@@ -168,8 +168,9 @@ function mouseDragFunc(x, y) {
         a = Math.min(17.5, Math.max(-17.5, coords.x));  //set limits
         b = Math.min(17.5, Math.max(-17.5, coords.z));
         dragItem.position.set(a, coords.y, b);
-        render();
     }
+    laserhit();
+    render();
 }
 
 // drag in the y-direction
@@ -190,8 +191,10 @@ function mouseDragFuncUp(x, y) {
         world.worldToLocal(coords);
         b = Math.min(1.5, Math.max(0, coords.y));  //set limits
         dragItem1.position.y = b;
+        laserhit();
         render();
     }
+
 }
 
 function mouseDragFuncRot(x) {
@@ -215,12 +218,13 @@ function mouseDragFuncRot(x) {
         basetexture[active - 1].needsUpdate = true;
         startX = prevX;
         prevX = x;
+        laserhit();
         render();
     }
 }
 
 function mouseDragFuncPolrot(x) {
-    if (dragItem1 != dragItem2 && dragItem2 == polarizer[4] || dragItem2 == polarizer[5] || dragItem2 == polarizer[6]) {  
+    if (dragItem1 != dragItem2 && dragItem2 == polarizer[4] || dragItem2 == polarizer[5] || dragItem2 == polarizer[6]) {
         //if the mousepointer was over the polarizer
         let rotangle = 0;
         let dx = prevX - startX;
@@ -243,6 +247,7 @@ function mouseDragFuncPolrot(x) {
         poltexture[active - 1].needsUpdate = true;
         startX = prevX;
         prevX = x;
+        laserhit();
         render();
     }
 }
@@ -256,11 +261,9 @@ function doMouseUp() {
             let a = Math.floor(dragItem.position.x) + 0.5;
             let b = Math.floor(dragItem.position.z) + 0.5;
             dragItem.position.set(a, 0.125, b);
+            laserhit();
+            render();
         }
-
-        laserhit();
-        render();
-
         dragging = false;
         rotate = false;
     }
