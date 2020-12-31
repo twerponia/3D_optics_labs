@@ -79,7 +79,7 @@ function mouseDownFunc(x, y) {
         deltax = item.point.x - itemvec.x;
         deltaz = item.point.z - itemvec.z;
         deltay = item.point.y - itemvec.y;
-       
+
         world.add(targetForDragging);
         targetForDragging.position.set(0, item.point.y, 0);
         render();
@@ -143,8 +143,9 @@ function mouseDragFunc(x, y) {
         const a = Math.min(17.5, Math.max(-17.5, coords.x));  //set limits
         const b = Math.min(17.5, Math.max(-17.5, coords.z));
         dragItem.position.set(a, coords.y, b);
-        render();
     }
+    laserhit();
+    render();
 }
 
 //reset
