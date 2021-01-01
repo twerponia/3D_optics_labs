@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Single lens exact ray tracing</title>
+    <meta charset="UTF-8">
+    <link href="mystyles.css" rel="stylesheet" type="text/css">
+    <script src="../files/three.min.js"></script>
+    <script src="../files/dat.gui.min.js"></script>
+    <script src="globals.js"></script>
+    <script src="partsfunctions.js"></script>
+    <script src="mousefunctions.js"></script>
+    <script src="mytextures.js"></script>
+    <script src="myphysics.js"></script>
+</head>
+
+<body>
+    <!--set up the HTML page-->
+    <canvas id="can1"></canvas>
+    <div id="div1">
+        <button id="b0">Hide text</button>
+    </div>
+
+    <div id="div2">
+        <h3>Single lens image formation<br>
+            and point aberrations<h3>
+                <p>Lens #0: no lens<br>
+                    Lens #1: bi-convex lens 1<br>
+                    Lens #2: plano-convex lens 2,<br>
+                    flat side facing beam<br>
+                    Lens #3: plano-convex lens 3,<br>
+                    flat side facing beam<br>
+                    Lens #4: plano-convex lens 3,<br>
+                    curved side facing beam
+                </p>
+                <p>major scale units: 1cm,<br>
+                    1 cm hole spacings
+                </p>
+                <p> Use themouse to move the lens<br>
+                    and zoom and rotate the view.
+                </p>
+    </div>
+
+    <script>
+        "use strict";
+        //set up a scene
+        let button = document.querySelector('#b0');
+        let textdiv = document.querySelector('#div2');
+        textdiv.style.display = "block";
+        button.addEventListener("click", function () {
+            if (textdiv.style.display === "none") {
+                textdiv.style.display = "block";
+                b0.innerText = "Hide Text"
+            } else {
+                textdiv.style.display = "none";
+                b0.innerText = "Show Text"
+            }
+        });
+
+        const canvas = document.querySelector('#can1');
+
+        //set up the gui controls
+        let beamradius = 0.3;
+        let snap = true;
+        let rotangle = 0;
+        let lensID = 0;
+        let oldID = 0;
+
+        const guicontrols = new function () {
+            this.laser_radius = beamradius;
+            this.lens_number = lensID;
+            this.lens_angle = rotangle;
+        };
+
+        const gui = new dat.GUI();
+        let gui1 = gui.add(guicontrols, 'laser_radius', 0.1, 1).name('Beam radius');
+        let gui2 = gui.add(guicontrols, 'lens_number', [0, 1, 2, 3, 4]).name('Lens number');
+        let gui3 = gui.add(guicontrols, 'lens_angle', -10, 10, 1).name('Lens rotation');
+
+        //set up what can be viewed by the camera
+        const renderer = new THREE.WebGLRenderer({ canvas });
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xdeb887);
+        const camera = new THREE.PerspectiveCamera(27, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
+        let cr = 65;
+        let cth = 1.3;
+        let cph = 0.2;
+        camera.position.z = cr * Math.sin(cth) * Math.cos(cph);
+        camera.position.y = cr * Math.cos(cth);
+        camera.position.x = cr * Math.sin(cth) * Math.sin(cph);
+        camera.lookAt(0, 0, 0);
+        scene.add(camera);
+        window.addEventListener("resize", resizeRendererToDisplaySize);
+
+
+        //scene setup
+        //add a laser with beam expander
+        const laser = makeLaser();
+        laser.position.x = -0.5;
+        laser.position.z = 25;
+        const extender = makeBeamextender();
+        const beamexit = makeBeamexit();
+        extender.add(beamexit);
+        laser.add(extender);
+        scene.add(laser);
+
+        //add rails
+        const rail1 = makeRail();
+        rail1.position.set(-3.1, 0.25, 0)
+        const rail2 = makeRail();
+        rail2.position.set(2.1, 0.25, 0)
+        const railbox = makeRailbox();
+        railbox.position.y = -0.13;
+        railbox.position.x = -0.5;
+        scene.add(railbox);
+        scene.add(rail1);
+        scene.add(rail2);
+
+        const holder = makeHolderblock();
+        holder.position.set(-10, 0.75, 0);
+        scene.add(holder);
+
+        //the world will hold all the objects to be moved
+        const world = new THREE.Object3D();
+        //add the optical table
+        const ground = makeBoard();
+        const table = makeTable();
+        table.position.z = -0.26;
+        ground.add(table)
+        ground.rotation.x = -Math.PI * 0.5;
+        ground.position.x = -0.5;
+        ground.add(table);
+        world.add(ground);
+
+        //add 2 bases, the bottoms of the bases are at y = 0
+        base[0] = makeBase(-0.5, -15.5, 2);
+        base[1] = makeBase(-0.5, -0.5, 5, 4);
+
+        posthold[0] = makePostholder(2.5);
+        posthold[1] = makePostholder(2);
+        posthold[1].add(angle[1]);
+
+        //add the screen to base 0
+        const screen = makeScreen();
+        const screenholder = makeScreenholder();
+        screen.position.y = 4.6;  //middle of screen is 4.6 units above bottom of screenholder
+        screen.position.z = -0.1;
+        screenholder.add(screen);
+        posthold[0].add(screenholder);
+
+        for (let i = 0; i < elements; i++) {
+            base[i].add(posthold[i]);
+        }
+
+        for (let i = 0; i < elements; i++) {
+            world.add(base[i]);
+            baseangle[i] = 0;
+        }
+
+
+        scene.add(world);
+
+        //make the lenses
+        lensholder[1] = makeLensholder();
+        lens[1] = makePlanoconvex(lensa);
+        lensholder[2] = makeLensholder();
+        lens[2] = makePlanoconvex(lensb);
+        lensholder[0] = makeLensholder();
+        lens[0] = makeBiconvex(lensc);
+
+        for (let i = 0; i < 3; i++) {
+            lensholder[i].add(lens[i]);
+            lensholder[i].position.y = 4.6;
+            lensholder[i].rotation.y = Math.PI;
+            newholder[i] = lensholder[i].clone();
+            newholder[i].rotation.y = Math.PI * 0.45;
+            newholder[i].position.set(0, 4, 10 * (1 - i));
+            holder.add(newholder[i]);
+            plaque[i] = holderText();
+            plaque[i].material = makeHoldertexture(i);
+            plaque[i].rotation.y = Math.PI / 2;
+            plaque[i].position.set(1.01, 0, 10 * (1 - i));
+            holder.add(plaque[i]);
+        }
+
+        //how to respond to mouse events
+        canvas.addEventListener("wheel", doWheel);
+        canvas.addEventListener("pointerdown", doMouseDown);
+
+        //track the laser beam as it encouters the optical elements
+
+        ctx.clearRect(0, 0, canv.width, canv.height);
+        ctx.fillText(baseangle[1].toFixed(1), 1, 12);
+        basetexture[1].needsUpdate = true;
+
+        rays1();
+
+        //render the scene
+        render();
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function resizeRendererToDisplaySize() {
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+            renderer.render(scene, camera);
+        }
+
+        gui1.onFinishChange(function (value) {
+            beamradius = 1 * value;
+            rays1();
+        });
+        gui3.onFinishChange(function (value) {
+            rotangle = Math.PI * value / 180;
+            let b = value;
+            posthold[0].rotation.y = rotangle;
+            posthold[1].rotation.y = rotangle;
+            baseangle[1] = b;
+            ctx.clearRect(0, 0, canv.width, canv.height);
+            ctx.fillText(b.toFixed(1), 1, 12);
+            basetexture[1].needsUpdate = true;
+            rays1();
+        });
+
+        gui2.onFinishChange(function (value) {
+            oldID = lensID;
+            lensID = 1 * value;
+            if (lensID == 1) {
+                old34();
+                old2();
+                posthold[1].add(lensholder[0]);
+                holder.remove(newholder[0]);
+            }
+
+            if (lensID == 2) {
+                old34();
+                old1();
+                posthold[1].add(lensholder[1]);
+                holder.remove(newholder[1]);
+            }
+
+            if (lensID == 3) {
+                old1();
+                old2();
+                old34();
+                posthold[1].add(lensholder[2]);
+                holder.remove(newholder[2]);
+            }
+
+            if (lensID == 4) {
+                old1();
+                old2();
+                old34();
+                lensholder[2].rotation.y = 0;
+                posthold[1].add(lensholder[2]);
+                holder.remove(newholder[2]);
+            }
+
+            if (lensID == 0) {
+                old1();
+                old2();
+                old34();
+            }
+            rays1();
+        });
+
+        function old34() {
+            if (oldID == 3 || oldID == 4) {
+                posthold[1].remove(lensholder[2]);
+                holder.add(newholder[2]);
+                if (oldID == 4) {
+                    lensholder[2].rotation.y = Math.PI;
+                }
+            }
+        }
+        function old2() {
+            if (oldID == 2) {
+                posthold[1].remove(lensholder[1]);
+                holder.add(newholder[1]);
+            }
+        }
+
+        function old1() {
+            if (oldID == 1) {
+                posthold[1].remove(lensholder[0]);
+                holder.add(newholder[0]);
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

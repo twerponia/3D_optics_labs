@@ -36,6 +36,11 @@ float:right;
 margin:4px
 }
 
+.leftfloat{
+float:left;
+margin:4px
+}
+
 .center{
 clear:both;
 display:block;
