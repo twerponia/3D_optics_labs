@@ -48,7 +48,7 @@ function rays1() {
             tlist = [0, lensb[1], (base[1].position.z - base[0].position.z - lensb[1]) / gamma];
         }
         if (lensID == 4) {
-            clist = [1 / lensb[0], 0,0,];
+            clist = [1 / lensb[0], 0, 0,];
             tlist = [0, lensb[1], (base[1].position.z - base[0].position.z) / gamma];
         }
 
@@ -127,18 +127,17 @@ function rays1() {
 
         function makeavg() {
             let temp;
-            //let a = [2, 2 - 2 / 9, 2 - 5 / 9, 0, 0, 0];
-            let a = [2, 2 - 1 / 9, 2 - 2 / 9, 2 - 4 / 9, 2 - 5 / 9, 2 - 8 / 9];
-            //let a = [1, 1, 1, 1, 1, 1];
+            let a = [2, 2 - 2 / 9, 2 - 5 / 9, 0, 0, 0];
+            //let a = [2, 2 - 1 / 9, 2 - 2 / 9, 2 - 4 / 9, 2 - 5 / 9, 2 - 8 / 9];
             for (let i = 0; i < 128; i++) {
                 for (let j = 0; j < 64; j++) {
                     temp = a[0] * arr[(j + 2) * 132 + i + 2];
                     temp = temp + a[1] * (arr[(j + 2) * 132 + i + 3] + arr[(j + 2) * 132 + i + 1] + arr[(j + 1) * 132 + i + 2] + arr[(j + 3) * 132 + i + 2]);
                     temp = temp + a[2] * (arr[(j + 1) * 132 + i + 3] + arr[(j + 3) * 132 + i + 3] + arr[(j + 1) * 132 + i + 1] + arr[(j + 3) * 132 + i + 1]);
-                    temp = temp + a[3] * (arr[(j + 2) * 132 + i + 4] + arr[(j + 2) * 132 + i] + arr[j * 132 + i + 2] + arr[(j + 4) * 132 + i + 2]);
-                    temp = temp + a[4] * (arr[(j + 1) * 132 + i + 4] + arr[(j + 3) * 132 + i + 4] + arr[(j + 1) * 132 + i] + arr[(j + 3) * 132 + i]);
-                    temp = temp + a[4] * (arr[j * 132 + i + 3] + arr[j * 132 + i + 1] + arr[(j + 4) * 132 + i + 3] + arr[(j + 4) * 132 + i + 1]);
-                    temp = temp + a[5] * (arr[j * 132 + i + 4] + arr[j * 132 + i] + arr[(j + 4) * 132 + i + 4] + arr[(j + 4) * 132 + i]);
+                    //temp = temp + a[3] * (arr[(j + 2) * 132 + i + 4] + arr[(j + 2) * 132 + i] + arr[j * 132 + i + 2] + arr[(j + 4) * 132 + i + 2]);
+                    //temp = temp + a[4] * (arr[(j + 1) * 132 + i + 4] + arr[(j + 3) * 132 + i + 4] + arr[(j + 1) * 132 + i] + arr[(j + 3) * 132 + i]);
+                    //temp = temp + a[4] * (arr[j * 132 + i + 3] + arr[j * 132 + i + 1] + arr[(j + 4) * 132 + i + 3] + arr[(j + 4) * 132 + i + 1]);
+                    //temp = temp + a[5] * (arr[j * 132 + i + 4] + arr[j * 132 + i] + arr[(j + 4) * 132 + i + 4] + arr[(j + 4) * 132 + i]);
                     arrnew[j * 128 + i] = temp;
                 }
             }
@@ -149,7 +148,7 @@ function rays1() {
             ctx1.fillStyle = col;
             ctx1.fillRect(i, j, 1, 1)
         }
-        
+
         function rays0(alpha1, beta1, gamma1) {
             let x1, y1, z1, ea, Mz, M2a, costheta, Ta, nu;
             let costhetap, g, alphap, betap, gammap;
