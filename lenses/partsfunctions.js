@@ -1,7 +1,11 @@
 let radius = 12.7 / 10;
-const lensa = [51.68 / 10, 4.585 / 10];
+//const lensa = [51.68 / 10, 4.585 / 10];
+//const lensa = [25.943 / 10, 6.3213 / 10];
+const lensa = [19.69 / 10, 7.643 / 10];
 const lensb = [103.36 / 10, 3.783 / 10];
-const lensc = [102.577 / 10, 4.578 / 10]
+//const lensc = [102.577 / 10, 4.578 / 10];
+const lensc = [50.806 / 10, 6.226/ 10];
+//const lensc = [38.085/ 10, 7.360/ 10];
 
 function makeBoard() {
     const groundmesh = new THREE.Mesh(new THREE.PlaneGeometry(6, 36));
@@ -299,7 +303,7 @@ function makeBiconvex(lens) {
     Tc = lens[1];
     const singleGeometry = new THREE.Geometry();
     const angle = Math.asin(radius / R1);
-    const Te = Tc - R1 * (1 - Math.cos(angle));
+    const Te = Tc - 2*R1 * (1 - Math.cos(angle));
     //const position = Te / 2
 
     const geometry0 = new THREE.SphereGeometry(R1, 32, 32, 0, Math.PI * 2, 0, angle);

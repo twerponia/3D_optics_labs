@@ -116,8 +116,8 @@ function rays1() {
 
         function makearray(xi, yi) {
             let i, j;
-            let xinew = (xi - xm) * 32;
-            let yinew = yi * 32;
+            let xinew = (xi - xm);
+            let yinew = yi;
             i = Math.round(34 * xinew + 68); //arbitrary scale
             j = Math.round(- 34 * yinew + 34);
             if (i >= 0 && j >= 0 && i < 132 && j < 68) {

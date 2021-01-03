@@ -75,7 +75,7 @@
         const gui = new dat.GUI();
         let gui1 = gui.add(guicontrols, 'laser_radius', 0.1, 1).name('Beam radius');
         let gui2 = gui.add(guicontrols, 'lens_number', [0, 1, 2, 3, 4]).name('Lens number');
-        let gui3 = gui.add(guicontrols, 'lens_angle', -10, 10, 1).name('Lens rotation');
+        let gui3 = gui.add(guicontrols, 'lens_angle', -30, 30, 5).name('Lens rotation');
 
         //set up what can be viewed by the camera
         const renderer = new THREE.WebGLRenderer({ canvas });
