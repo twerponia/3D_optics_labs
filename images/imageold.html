@@ -24,21 +24,21 @@
     <div id="div2">
         <h3>Single lens image formation<br>
             and point aberrations</h3>
-        <p>Lens #0: no lens<br>
-            Lens #1: bi-convex lens 1<br>
-            Lens #2: plano-convex lens 2,<br>
-            flat side facing beam<br>
-            Lens #3: plano-convex lens 3,<br>
-            flat side facing beam<br>
-            Lens #4: plano-convex lens 3,<br>
-            curved side facing beam
-        </p>
-        <p>major scale units: 1cm,<br>
-            1 cm hole spacings
-        </p>
-        <p> Use the mouse to move the lens<br>
-            and zoom and rotate the view.
-        </p>
+                <p>Lens #0: no lens<br>
+                    Lens #1: bi-convex lens 1<br>
+                    Lens #2: plano-convex lens 2,<br>
+                    flat side facing beam<br>
+                    Lens #3: plano-convex lens 3,<br>
+                    flat side facing beam<br>
+                    Lens #4: plano-convex lens 3,<br>
+                    curved side facing beam
+                </p>
+                <p>major scale units: 1cm,<br>
+                    1 cm hole spacings
+                </p>
+                <p> Use the mouse to move the lens<br>
+                    and zoom and rotate the view.
+                </p>
     </div>
 
     <script>
@@ -137,7 +137,11 @@
         posthold[1].add(angle);
 
         makeApertureholder();
-        let ring = makeRing();
+        //the ringeometry is global because it can be changes with the gui
+        let ringgeometry = new THREE.RingGeometry(beamradius, 1.4, 16);
+        let ring = new THREE.Mesh(ringgeometry, mat7);
+        ring.position.y = 4.6;
+        ring.position.z = 0.6;
         posthold[1].add(ring);
 
         //make lamp
@@ -213,10 +217,11 @@
 
         gui1.onFinishChange(function (value) {
             beamradius = 1 * value;
-            let ringnew = new THREE.RingGeometry(beamradius, 1.4, 16);
-            ring.geometry.vertices = ringnew.vertices;
-            ring.geometry.verticesNeedUpdate = true;
-            ring.geometry.elementsNeedUpdate = true;
+            posthold[1].remove(ring);
+            ringgeometry.dispose();
+            ringgeometry = new THREE.RingGeometry(beamradius, 1.4, 16);
+            ring.geometry = ringgeometry;
+            posthold[1].add(ring);
             rays1();
         });
 

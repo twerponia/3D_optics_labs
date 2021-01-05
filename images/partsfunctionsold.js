@@ -192,7 +192,7 @@ function makeLamp() {
         mat00,
         mat00,
         mat00,
-
+      
     ];
 
     const lmesh = new THREE.Mesh(singleGeometry, lampmat);
@@ -204,7 +204,7 @@ function makeLamp() {
 function makeLight() {
     const geometry = new THREE.PlaneGeometry(1, 1);
     const lampmaterial = makeLamptexture();
-    const lightmesh = new THREE.Mesh(geometry, lampmaterial);
+      const lightmesh = new THREE.Mesh(geometry, lampmaterial);
     lightmesh.rotation.y = Math.PI;
     lightmesh.position.z = -0.01;
     lightmesh.position.y = 4.6;
@@ -338,11 +338,4 @@ function makeApertureholder() {
     circle1.rotation.x = Math.PI / 2.
     circle1.position.y = 2.42;
     posthold[1].add(circle1);
-}
-function makeRing() {
-    const ringgeometry = new THREE.RingGeometry(beamradius, 1.4, 16);
-    const ring = new THREE.Mesh(ringgeometry, mat7);
-    ring.position.y = 4.6;
-    ring.position.z = 0.6;
-    return ring;
 }
