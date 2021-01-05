@@ -93,7 +93,6 @@
         scene.add(camera);
         window.addEventListener("resize", resizeRendererToDisplaySize);
 
-
         //scene setup
         //add a laser with beam expander
         const laser = makeLaser();
@@ -123,6 +122,7 @@
 
         //the world will hold all the objects to be moved
         const world = new THREE.Object3D();
+
         //add the optical table
         const ground = makeBoard();
         const table = makeTable();
@@ -139,7 +139,7 @@
 
         posthold[0] = makePostholder(2.5);
         posthold[1] = makePostholder(2);
-        posthold[1].add(angle[1]);
+        posthold[1].add(angle);
 
         //add the screen to base 0
         const screen = makeScreen();
@@ -155,10 +155,11 @@
 
         for (let i = 0; i < elements; i++) {
             world.add(base[i]);
-            baseangle[i] = 0;
+            baseangle = 0;
         }
-
-
+        ctx.clearRect(0, 0, canv.width, canv.height);
+        ctx.fillText(baseangle.toFixed(1), 1, 12);
+        basetexture.needsUpdate = true;
         scene.add(world);
 
         //make the lenses
@@ -189,11 +190,6 @@
         canvas.addEventListener("pointerdown", doMouseDown);
 
         //track the laser beam as it encouters the optical elements
-
-        ctx.clearRect(0, 0, canv.width, canv.height);
-        ctx.fillText(baseangle[1].toFixed(1), 1, 12);
-        basetexture[1].needsUpdate = true;
-
         rays1();
 
         //render the scene
@@ -219,10 +215,10 @@
             let b = value;
             posthold[0].rotation.y = rotangle;
             posthold[1].rotation.y = rotangle;
-            baseangle[1] = b;
+            baseangle = b;
             ctx.clearRect(0, 0, canv.width, canv.height);
             ctx.fillText(b.toFixed(1), 1, 12);
-            basetexture[1].needsUpdate = true;
+            basetexture.needsUpdate = true;
             rays1();
         });
 

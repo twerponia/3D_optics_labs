@@ -1,5 +1,6 @@
 ﻿"use strict";
 //plaque canvas
+function makeplaquemat(){
 const canvp = document.createElement('canvas');
 const ctxp = canvp.getContext('2d');
 canvp.width = 128;
@@ -13,6 +14,8 @@ ctxp.fillText('with Beam Expander', 3, 28);
 const plaquetexture = new THREE.CanvasTexture(canvp);
 plaquetexture.needsUpdate = true;
 const plaquematerial = new THREE.MeshBasicMaterial({ map: plaquetexture });
+return plaquematerial;
+}
 
 //angle canvas
 const canv = document.createElement('canvas');
@@ -23,17 +26,13 @@ ctx.font = '12px Arial';
 ctx.fillStyle = 'white';
 ctx.fillText('0', 1, 12);
 
-for (let i = 0; i < elements; i++) {
-    basetexture[i] = new THREE.CanvasTexture(canv);
-    basetexture[i].needsUpdate = true;
-}
+basetexture = new THREE.CanvasTexture(canv);
+    basetexture.needsUpdate = true;
+    angle = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshBasicMaterial({ map: basetexture }));
+    angle.rotation.x = -Math.PI * 0.5;
+    angle.position.y = 0.5;
+    angle.position.z = 1;
 
-for (let i = 0; i < elements; i++) {
-    angle[i] = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshBasicMaterial({ map: basetexture[i] }));
-    angle[i].rotation.x = -Math.PI * 0.5;
-    angle[i].position.y = 0.5;
-    angle[i].position.z = 1;
-}
 
 //screen canvas
 const canv1 = document.createElement('canvas');
@@ -53,12 +52,13 @@ const screenmaterial = [
     mat00,
 ];
 
+// holdercanvas
+
 function makeHoldertexture(i) {
     const canv2 = document.createElement('canvas');
     const ctx2 = canv2.getContext('2d');
     canv2.width = 64;
     canv2.height = 32;
-    ctx.clearRect(0, 0, 64, 32);
     ctx2.fillStyle = "#ffffff";
     ctx2.fillRect(0, 0, canv1.width, canv1.height);
     ctx2.fillStyle = "#000000";

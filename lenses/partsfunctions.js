@@ -4,7 +4,7 @@ let radius = 12.7 / 10;
 const lensa = [19.69 / 10, 7.643 / 10];
 const lensb = [103.36 / 10, 3.783 / 10];
 //const lensc = [102.577 / 10, 4.578 / 10];
-const lensc = [50.806 / 10, 6.226/ 10];
+const lensc = [50.806 / 10, 6.226 / 10];
 //const lensc = [38.085/ 10, 7.360/ 10];
 
 function makeBoard() {
@@ -21,20 +21,20 @@ function makeBoard() {
     return groundmesh;
 }
 
-function makeTable(){
-const geometry = new THREE.PlaneGeometry(26, 36);
-const mat = new THREE.MeshBasicMaterial({ color: 0x4d3319 });
-const tablemesh = new THREE.Mesh(geometry, mat);
-return tablemesh;
+function makeTable() {
+    const geometry = new THREE.PlaneGeometry(26, 36);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x4d3319 });
+    const tablemesh = new THREE.Mesh(geometry, mat);
+    return tablemesh;
 }
 
-function makeHolderblock(){
+function makeHolderblock() {
     const geometry = new THREE.BoxGeometry(2, 2, 24);
     const mat = new THREE.MeshBasicMaterial({ color: 0xc68c53 });
     const box = new THREE.Mesh(geometry, mat);
-    const cgeometry = new THREE.CircleGeometry( 0.3, 32 );
-    const circle1 = new THREE.Mesh( cgeometry, mat0);
-    circle1.rotation.x = Math.PI/2.
+    const cgeometry = new THREE.CircleGeometry(0.3, 32);
+    const circle1 = new THREE.Mesh(cgeometry, mat0);
+    circle1.rotation.x = Math.PI / 2.
     circle2 = circle1.clone();
     circle3 = circle1.clone();
     circle1.position.set(0, 1.02, 10);
@@ -46,7 +46,7 @@ function makeHolderblock(){
     return box;
 }
 
-function holderText(){
+function holderText() {
     const geometry = new THREE.PlaneGeometry(2, 1);
     const holderplaque = new THREE.Mesh(geometry);
     return holderplaque;
@@ -122,8 +122,8 @@ function makeBeamextender() {
 }
 
 function makeBeamexit() {
-    const geometry = new THREE.CircleGeometry(beamradius, 32);
-    const mat3a = new THREE.MeshBasicMaterial({ color: 0x220000 });
+    const geometry = new THREE.CircleGeometry(0.6, 32);
+    const mat3a = new THREE.MeshBasicMaterial({ color: 0x110000 });
     const bexit = new THREE.Mesh(geometry, mat3a);
     bexit.rotation.x = -Math.PI * 0.5;
     bexit.position.y = 1.505;
@@ -131,6 +131,7 @@ function makeBeamexit() {
 }
 function makePlaque() {
     const geometry = new THREE.PlaneGeometry(4, 1);
+    const plaquematerial = makeplaquemat();
     const plaque = new THREE.Mesh(geometry, plaquematerial);
     plaque.rotation.y = -Math.PI * 0.5;
     plaque.rotation.x = Math.PI * 0.5;
@@ -246,7 +247,6 @@ function makeLensholder() {
     const pol4 = new THREE.Mesh(geometry4);
     pol4.position.y = -2.8;  //the post is 2.8 units high and its bottom is at y = 0.4
 
-
     pol0.updateMatrix();
     pol1.updateMatrix();
     pol2.updateMatrix();
@@ -258,9 +258,6 @@ function makeLensholder() {
     singleGeometry.merge(pol1.geometry, pol1.matrix, 1);
     singleGeometry.merge(pol2.geometry, pol2.matrix, 1);
     singleGeometry.merge(pol3.geometry, pol3.matrix, 1);
-
-
-    const mat7 = new THREE.MeshBasicMaterial({ color: 0x25383c, side: THREE.DoubleSide });
     const polmaterial = [
         mat0,
         mat7,
@@ -303,7 +300,7 @@ function makeBiconvex(lens) {
     Tc = lens[1];
     const singleGeometry = new THREE.Geometry();
     const angle = Math.asin(radius / R1);
-    const Te = Tc - 2*R1 * (1 - Math.cos(angle));
+    const Te = Tc - 2 * R1 * (1 - Math.cos(angle));
     //const position = Te / 2
 
     const geometry0 = new THREE.SphereGeometry(R1, 32, 32, 0, Math.PI * 2, 0, angle);

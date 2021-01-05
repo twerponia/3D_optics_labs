@@ -4,7 +4,6 @@ function rays1() {
     //clear the screen
     ctx1.fillStyle = "#ffffff";
     ctx1.fillRect(0, 0, canv1.width, canv1.height);
-    ctx1.fillStyle = "#000000";
     ctx1.beginPath();
     ctx1.strokeStyle = "black";
     for (let i = 16; i < 128; i += 16) {
@@ -73,7 +72,6 @@ function rays1() {
         makeavg();
 
         let ratio = Math.max(...arrnew);
-        //console.log(ratio);
         if (ratio != 0) {
             arrnew = arrnew.map(v => v / ratio);
         }
