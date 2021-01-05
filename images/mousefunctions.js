@@ -144,7 +144,7 @@ function mouseDragFunc(x, y) {
     }
 
     if (cond == 1) {
-        const b = Math.min(17.5, Math.max(-17.5, coords.z));  //set limits
+        const b = Math.min(29.5, Math.max(-29.5, coords.z)); //set limits
         const a = -0.5;
         dragItem.position.set(a, coords.y, b);      
     }

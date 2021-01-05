@@ -1,8 +1,7 @@
 ﻿"use strict";
 function rays1() {
-
     //clear the screen
-    ctx1.fillStyle = "#ffffff";
+    ctx1.fillStyle = "#708090";
     ctx1.fillRect(0, 0, canv1.width, canv1.height);
     ctx1.beginPath();
     ctx1.strokeStyle = "black";
@@ -15,16 +14,20 @@ function rays1() {
     render();
 
     if (lensID == 0) {
-        ctx1.fillStyle = "#ff0000";
+        ctx1.fillStyle = "#708090";
+        ctx1.fillRect(0, 0, canv1.width, canv1.height);
         ctx1.beginPath();
-        ctx1.ellipse(64, 32, beamradius * 32, beamradius * 32, 0, 0, 2 * Math.PI);
-        ctx1.fill();
+        ctx1.strokeStyle = "black";
+        for (let i = 16; i < 128; i += 16) {
+            ctx1.moveTo(i, 0);
+            ctx1.lineTo(i, 16);
+        }
+        ctx1.stroke();
     }
     else {
         let xm, x, y, z = 0;
         let alpha, beta, gamma;
 
-        //calulate the direction cosines
         alpha = Math.cos(Math.PI / 2 + rotangle);
         beta = 0;
         gamma = Math.sqrt(1 - alpha * alpha);
@@ -36,19 +39,19 @@ function rays1() {
         // parameters of optical system
         if (lensID == 1) {
             clist = [1 / lensc[0], -1 / lensc[0], 0,];
-            tlist = [0, lensc[1], (base[1].position.z - base[0].position.z - lensc[1] / 2) / gamma];
+            tlist = [(base[2].position.z - base[1].position.z + lensc[1] / 2) / gamma, lensc[1], (base[1].position.z - base[0].position.z - lensc[1] / 2) / gamma];
         }
         if (lensID == 2) {
             clist = [0, -1 / lensa[0], 0,];
-            tlist = [0, lensa[1], (base[1].position.z - base[0].position.z - lensa[1]) / gamma];
+            tlist = [(base[2].position.z - base[1].position.z) / gamma, lensa[1], (base[1].position.z - base[0].position.z - lensa[1]) / gamma];
         }
         if (lensID == 3) {
             clist = [0, -1 / lensb[0], 0,];
-            tlist = [0, lensb[1], (base[1].position.z - base[0].position.z - lensb[1]) / gamma];
+            tlist = [(base[2].position.z - base[1].position.z + lensb[1]) / gamma, lensb[1], (base[1].position.z - base[0].position.z - lensb[1]) / gamma];
         }
         if (lensID == 4) {
             clist = [1 / lensb[0], 0, 0,];
-            tlist = [0, lensb[1], (base[1].position.z - base[0].position.z) / gamma];
+            tlist = [(base[2].position.z - base[1].position.z) / gamma, lensb[1], (base[1].position.z - base[0].position.z) / gamma];
         }
 
         let arr, arrnew;
@@ -57,17 +60,63 @@ function rays1() {
         (arrnew = []).length = 8192;
         arrnew.fill(0);
 
-        x = 0; y = 0;
+        let x0 = tlist[0] * Math.tan(rotangle); y = 0; z = 0;
+        x = x0;
         rays0(alpha, beta, gamma);
 
-        for (let j = 0; j < 1000; j++) {
-            //pick a ray
-            z = 0;
-            x = -aprad + 2 * Math.random() * aprad;
-            y = -aprad + 2 * Math.random() * aprad;
-            if (x * x + y * y < aprad2) {
-                rays(alpha, beta, gamma);
+
+        for (let j = 0; j < 40; j++) {
+            for (let i = -2; i < 3; i++) {
+                //pick a ray
+                x = x0 + i / 4; y = 0; z = 0;
+                let xa = -aprad + 2 * Math.random() * aprad;
+                let ya = -aprad + 2 * Math.random() * aprad;
+                if (xa * xa + ya * ya < aprad2) {
+                    alpha = -(x - xa) / Math.sqrt((xa - x) * (xa - x) + tlist[0] * tlist[0]);
+                    beta = -(y - ya) / Math.sqrt((ya - y) * (ya - y) + tlist[0] * tlist[0]);
+                    gamma = Math.sqrt(1 - alpha * alpha - beta * beta);
+                    rays(alpha, beta, gamma);
+                }
             }
+
+            for (let i = -2; i < 3; i++) {
+                //pick a ray
+                if (i != 0) {
+                    x = x0; y = i / 4; z = 0;
+                    let xa = -aprad + 2 * Math.random() * aprad;
+                    let ya = -aprad + 2 * Math.random() * aprad;
+                    if (xa * xa + ya * ya < aprad2) {
+                        alpha = -(x - xa) / Math.sqrt((xa - x) * (xa - x) + tlist[0] * tlist[0]);
+                        beta = -(y - ya) / Math.sqrt((ya - y) * (ya - y) + tlist[0] * tlist[0]);
+                        gamma = Math.sqrt(1 - alpha * alpha - beta * beta);
+                        rays(alpha, beta, gamma);
+                    }
+                }
+            }
+            for (let i = -1; i < 2; i++) {
+                x = x0 + 3 / 4; y = i / 4; z = 0;
+                let xa = -aprad + 2 * Math.random() * aprad;
+                let ya = -aprad + 2 * Math.random() * aprad;
+                if (xa * xa + ya * ya < aprad2) {
+                    alpha = -(x - xa) / Math.sqrt((xa - x) * (xa - x) + tlist[0] * tlist[0]);
+                    beta = -(y - ya) / Math.sqrt((ya - y) * (ya - y) + tlist[0] * tlist[0]);
+                    gamma = Math.sqrt(1 - alpha * alpha - beta * beta);
+                    rays(alpha, beta, gamma);
+                }
+
+                for (let i = -1; i < 2; i++) {
+                    x = x0 + i / 4; y = 3 / 4; z = 0;
+                    let xa = -aprad + 2 * Math.random() * aprad;
+                    let ya = -aprad + 2 * Math.random() * aprad;
+                    if (xa * xa + ya * ya < aprad2) {
+                        alpha = -(x - xa) / Math.sqrt((xa - x) * (xa - x) + tlist[0] * tlist[0]);
+                        beta = -(y - ya) / Math.sqrt((ya - y) * (ya - y) + tlist[0] * tlist[0]);
+                        gamma = Math.sqrt(1 - alpha * alpha - beta * beta);
+                        rays(alpha, beta, gamma);
+                    }
+                }
+            }
+
         }
         makeavg();
 
@@ -116,6 +165,7 @@ function rays1() {
             let i, j;
             let xinew = (xi - xm);
             let yinew = yi;
+
             i = Math.round(34 * xinew + 68); //arbitrary scale
             j = Math.round(- 34 * yinew + 34);
             if (i >= 0 && j >= 0 && i < 132 && j < 68) {
@@ -125,7 +175,7 @@ function rays1() {
 
         function makeavg() {
             let temp;
-            //try different convolutions
+            //different convolutions
             let a = [2, 2 - 2 / 9, 2 - 5 / 9, 0, 0, 0];
             //let a = [2, 2 - 1 / 9, 2 - 2 / 9, 2 - 4 / 9, 2 - 5 / 9, 2 - 8 / 9];
             for (let i = 0; i < 128; i++) {
@@ -143,7 +193,7 @@ function rays1() {
         }
 
         function makeInstance(i, j) {
-            let col = "rgba(" + 255 + "," + 0 + "," + 0 + ", " + b + ")";
+            let col = "rgba(" + 255 + "," + 255 + "," + 0 + ", " + b + ")";
             ctx1.fillStyle = col;
             ctx1.fillRect(i, j, 1, 1)
         }

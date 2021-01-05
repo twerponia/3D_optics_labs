@@ -25,13 +25,13 @@ canv.height = 16;
 ctx.font = '12px Arial';
 ctx.fillStyle = 'white';
 ctx.fillText(baseangle.toFixed(1), 1, 12);
+
 basetexture = new THREE.CanvasTexture(canv);
 basetexture.needsUpdate = true;
 angle = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshBasicMaterial({ map: basetexture }));
 angle.rotation.x = -Math.PI * 0.5;
 angle.position.y = 0.5;
 angle.position.z = 1;
-
 
 //screen canvas
 const canv1 = document.createElement('canvas');
@@ -51,7 +51,6 @@ const screenmaterial = [
     mat00,
 ];
 
-// holdercanvas
 function makeHoldertexture(i) {
     const canv2 = document.createElement('canvas');
     const ctx2 = canv2.getContext('2d');
@@ -67,4 +66,43 @@ function makeHoldertexture(i) {
     holdertexture.needsUpdate = true;
     const holdermaterial = new THREE.MeshBasicMaterial({ map: holdertexture });
     return holdermaterial;
+}
+
+function makeLamptexture() {
+    const canv = document.createElement('canvas');
+    const ctxlamp = canv.getContext('2d');
+    canv.width = 64;
+    canv.height = 64;
+    ctxlamp.fillStyle = "#000000";
+    ctxlamp.fillRect(0, 0, canv.width, canv.height);
+
+    for (let i = -2; i < 3; i++) {
+        ctxlamp.fillStyle = "#ffff00";
+        ctxlamp.beginPath();
+        ctxlamp.arc(i / 4 * 32 + 32, 32, 3, 0, 2 * Math.PI);
+        ctxlamp.fill();
+    }
+    for (let i = -2; i < 3; i++) {
+        ctxlamp.fillStyle = "#ffff00";
+        ctxlamp.beginPath();
+        ctxlamp.arc(32, 32 - i / 4 * 32, 3, 0, 2 * Math.PI);
+        ctxlamp.fill();
+    }
+    for (let i = -1; i < 2; i++) {
+        ctxlamp.fillStyle = "#ffff00";
+        ctxlamp.beginPath();
+        ctxlamp.arc(3 / 4 * 32 + 32, 32 - i / 4 * 32, 3, 0, 2 * Math.PI);
+        ctxlamp.fill();
+
+    }
+    for (let i = -1; i < 2; i++) {
+        ctxlamp.fillStyle = "#ffff00";
+        ctxlamp.beginPath();
+        ctxlamp.arc(i / 4 * 32 + 32, 32 - 3 / 4 * 32, 3, 0, 2 * Math.PI);
+        ctxlamp.fill();
+    }
+    let lamptexture = new THREE.CanvasTexture(canv);
+    lamptexture.needsUpdate = true;
+    const lampmaterial = new THREE.MeshBasicMaterial({ map: lamptexture });
+    return lampmaterial;
 }

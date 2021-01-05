@@ -26,7 +26,7 @@ targetForDragging.rotation.x = -Math.PI * 0.5;
 targetForDragging.material.visible = false;
 
 //# of bases for elements
-const elements = 2;
+const elements = 3;
 
 //arrays, so that an element can have the same index as its base
 const base = new Array(elements);

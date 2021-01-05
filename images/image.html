@@ -8,9 +8,9 @@
     <script src="../files/three.min.js"></script>
     <script src="../files/dat.gui.min.js"></script>
     <script src="globals.js"></script>
+    <script src="mytextures.js"></script>
     <script src="partsfunctions.js"></script>
     <script src="mousefunctions.js"></script>
-    <script src="mytextures.js"></script>
     <script src="myphysics.js"></script>
 </head>
 
@@ -56,11 +56,12 @@
                 b0.innerText = "Show Text"
             }
         });
+
         //set up a scene
         const canvas = document.querySelector('#can1');
 
         //set up the gui controls
-        let beamradius = 0.3;
+        let beamradius = 0.5;
         let snap = true;
         let rotangle = 0;
         let lensID = 0;
@@ -73,9 +74,9 @@
         };
 
         const gui = new dat.GUI();
-        let gui1 = gui.add(guicontrols, 'laser_radius', 0.1, 1).name('Beam radius');
+        let gui1 = gui.add(guicontrols, 'laser_radius', 0.1, 1, 0.1).name('Aperture radius');
         let gui2 = gui.add(guicontrols, 'lens_number', [0, 1, 2, 3, 4]).name('Lens number');
-        let gui3 = gui.add(guicontrols, 'lens_angle', -30, 30, 5).name('Lens rotation');
+        let gui3 = gui.add(guicontrols, 'lens_angle', -30, 30, 1).name('Lens rotation');
 
         //set up what can be viewed by the camera
         const renderer = new THREE.WebGLRenderer({ canvas });
@@ -84,25 +85,14 @@
         scene.background = new THREE.Color(0xdeb887);
         const camera = new THREE.PerspectiveCamera(27, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
         let cr = 65;
-        let cth = 1.3;
-        let cph = 0.2;
+        let cth = 1.4;
+        let cph = 0.15;
         camera.position.z = cr * Math.sin(cth) * Math.cos(cph);
         camera.position.y = cr * Math.cos(cth);
         camera.position.x = cr * Math.sin(cth) * Math.sin(cph);
         camera.lookAt(0, 0, 0);
         scene.add(camera);
         window.addEventListener("resize", resizeRendererToDisplaySize);
-
-        //scene setup
-        //add a laser with beam expander directly to the scene
-        const laser = makeLaser();
-        laser.position.x = -0.5;
-        laser.position.z = 25;
-        const extender = makeBeamextender();
-        const beamexit = makeBeamexit();
-        extender.add(beamexit);
-        laser.add(extender);
-        scene.add(laser);
 
         //add rails directly to the scene
         const rail1 = makeRail();
@@ -135,16 +125,30 @@
         ground.add(table);
         world.add(ground);
 
-        //make 2 bases, the bottoms of the bases are at y = 0
+        //make 3 bases, the bottoms of the bases are at y = 0
         base[0] = makeBase(-0.5, -15.5, 2);
         base[1] = makeBase(-0.5, -0.5, 4);
+        base[2] = makeBase(-0.5, 14.5, 2);
 
-        //make 2 postholders
+        //make 3 postholders
         posthold[0] = makePostholder(2.5);
         posthold[1] = makePostholder(2);
+        posthold[2] = makePostholder(2);
         posthold[1].add(angle);
 
-        //add the screen to base 0
+        makeApertureholder();
+        //the ringeometry is global because it can be changes with the gui
+        let ringgeometry = new THREE.RingGeometry(beamradius, 1.4, 16);
+        let ring = new THREE.Mesh(ringgeometry, mat7);
+        ring.position.y = 4.6;
+        ring.position.z = 0.6;
+        posthold[1].add(ring);
+
+        //make lamp
+        const lamp = makeLamp();
+        posthold[2].add(lamp);
+
+        //add the screen to posthold[0]
         const screen = makeScreen();
         const screenholder = makeScreenholder();
         screen.position.y = 4.6;  //middle of screen is 4.6 units above bottom of screenholder
@@ -160,6 +164,7 @@
         for (let i = 0; i < elements; i++) {
             world.add(base[i]);
         }
+
         //add the world to the scene
         scene.add(world);
 
@@ -193,6 +198,7 @@
         canvas.addEventListener("pointerdown", doMouseDown);
 
         //track the laser beam as it encouters the optical elements
+
         rays1();
 
         //render the scene
@@ -211,13 +217,20 @@
 
         gui1.onFinishChange(function (value) {
             beamradius = 1 * value;
+            posthold[1].remove(ring);
+            ringgeometry.dispose();
+            ringgeometry = new THREE.RingGeometry(beamradius, 1.4, 16);
+            ring.geometry = ringgeometry;
+            posthold[1].add(ring);
             rays1();
         });
+
         gui3.onFinishChange(function (value) {
             rotangle = Math.PI * value / 180;
             let b = value;
             posthold[0].rotation.y = rotangle;
             posthold[1].rotation.y = rotangle;
+            posthold[2].rotation.y = rotangle;
             baseangle = b;
             ctx.clearRect(0, 0, canv.width, canv.height);
             ctx.fillText(b.toFixed(1), 1, 12);
