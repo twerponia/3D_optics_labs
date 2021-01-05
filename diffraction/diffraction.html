@@ -35,98 +35,105 @@
     </div>
 
 
-<script>
-    "use strict";
-    //set up a scene
-    const canvas = document.querySelector('#can1');
-    let beamradius = 0.125;
-    const renderer = new THREE.WebGLRenderer({ canvas });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xdeb887);
-    const camera = new THREE.PerspectiveCamera(27, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
-    let cr = 65;
-    let cth = 1.3;
-    let cph = -0.2;
-    camera.position.z = cr * Math.sin(cth) * Math.cos(cph);
-    camera.position.y = cr * Math.cos(cth);
-    camera.position.x = cr * Math.sin(cth) * Math.sin(cph);
-    camera.lookAt(0, 0, 0);
-    scene.add(camera);
-    window.addEventListener("resize", resizeRendererToDisplaySize);
-    //add a laser with beam expander
-    const laser = makeLaser();
-    laser.position.x = -0.5;
-    laser.position.z = 25;
-    const extender = makeBeamextender();
-    const beamexit = makeBeamexit();
-    extender.add(beamexit);
-    laser.add(extender);
-    scene.add(laser);
-    //the world will hold all the objects to be moved
-    const ground = makeBoard();
-    ground.rotation.x = -Math.PI * 0.5;
-    const world = new THREE.Object3D();
-    world.add(ground);
-    //add 5 bases, the bottoms of the bases are at y = 0
-    base[0] = makeBase(-0.5, -15.5);
-    for (let i = 1; i < elements; i++) {
-        base[i] = makeBase(-15.5, -15.5 + i * 5);
-    }
-    // add postholders, the postholder positions are y = 0
-    for (let i = 0; i < elements; i++) {
-        posthold[i] = makePostholder();
-    }
-    //add the screenholder and screen to postholder zer0
-    const screen = makeScreen();
-    const screenholder = makeScreenholder();
-    screenholder.position.y = 0.275
-    screen.position.y = 4.2;  //middle of screen is 4.2 units above bottom of screenholder
-    screen.position.z = -0.1;
-    screenholder.add(screen);
-    posthold[0].add(screenholder);
-    //add the slitholders and slits to postholder zer0
-    for (let i = 1; i < elements; i++) {
-        slit[i] = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.MeshBasicMaterial({ map: slittexture[i], side: THREE.DoubleSide }));
-        slitholder[i] = makeScreenholder();
-        slitholder[i].position.y = 0.475;
-        slit[i].position.y = 4;
-        slitholder[i].add(slit[i]);
-        posthold[i].add(slitholder[i]);
-    }
-    //add the angle scales to the postholders and the postholders to the screen
-    for (let i = 0; i < elements; i++) {
-        posthold[i].add(angle[i]);
-        base[i].add(posthold[i]);
-    }
-    //finally, add the bases to the world and the world to the scene
-    for (let i = 0; i < elements; i++) {
-        world.add(base[i]);
-        baseangle[i] = 0;
-    }
-    scene.add(world);
+    <script>
+        "use strict";
 
-    //how to respond to mouse events
-    canvas.addEventListener("wheel", doWheel);
-    canvas.addEventListener("pointerdown", doMouseDown);
-
-    //track the laser beam as it encouters the optical elements
-    laserhit();
-
-    //render the scene
-    render();
-
-    function render() {
-        renderer.render(scene, camera);
-    }
-
-    function resizeRendererToDisplaySize() {
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+        //set up a scene
+        const canvas = document.querySelector('#can1');
+        let beamradius = 0.125;
+        const renderer = new THREE.WebGLRenderer({ canvas });
         renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        renderer.render(scene, camera);
-    }
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xdeb887);
+        const camera = new THREE.PerspectiveCamera(27, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
+        let cr = 65;
+        let cth = 1.3;
+        let cph = -0.2;
+        camera.position.z = cr * Math.sin(cth) * Math.cos(cph);
+        camera.position.y = cr * Math.cos(cth);
+        camera.position.x = cr * Math.sin(cth) * Math.sin(cph);
+        camera.lookAt(0, 0, 0);
+        scene.add(camera);
+        window.addEventListener("resize", resizeRendererToDisplaySize);
 
-</script>
+        //add a laser with beam expander to the scene
+        const laser = makeLaser();
+        laser.position.x = -0.5;
+        laser.position.z = 25;
+        const extender = makeBeamextender();
+        const beamexit = makeBeamexit();
+        extender.add(beamexit);
+        laser.add(extender);
+        scene.add(laser);
+
+        //the world will hold all the objects to be moved
+        //add the ground to the world
+        const ground = makeBoard();
+        ground.rotation.x = -Math.PI * 0.5;
+        const world = new THREE.Object3D();
+        world.add(ground);
+
+        //make 5 bases, the bottoms of the bases are at y = 0
+        base[0] = makeBase(-0.5, -15.5);
+        for (let i = 1; i < elements; i++) {
+            base[i] = makeBase(-15.5, -15.5 + i * 5);
+        }
+        //make postholders, the postholder positions are y = 0
+        for (let i = 0; i < elements; i++) {
+            posthold[i] = makePostholder();
+        }
+
+        //add the screenholder and screen to postholder zer0
+        const screen = makeScreen();
+        const screenholder = makeScreenholder();
+        screenholder.position.y = 0.275
+        screen.position.y = 4.2;  //middle of screen is 4.2 units above bottom of screenholder
+        screen.position.z = -0.1;
+        screenholder.add(screen);
+        posthold[0].add(screenholder);
+
+        //add the slitholders and slits to the other postholders
+        for (let i = 1; i < elements; i++) {
+            slit[i] = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.MeshBasicMaterial({ map: slittexture[i], side: THREE.DoubleSide }));
+            slitholder[i] = makeScreenholder();
+            slitholder[i].position.y = 0.475;
+            slit[i].position.y = 4;
+            slitholder[i].add(slit[i]);
+            posthold[i].add(slitholder[i]);
+        }
+        //add the angle scales to the postholders and the postholders to the bases
+        for (let i = 0; i < elements; i++) {
+            posthold[i].add(angle[i]);
+            base[i].add(posthold[i]);
+        }
+        //finally, add the bases to the world and the world to the scene
+        for (let i = 0; i < elements; i++) {
+            world.add(base[i]);
+        }
+        scene.add(world);
+
+        //how to respond to mouse events
+        canvas.addEventListener("wheel", doWheel);
+        canvas.addEventListener("pointerdown", doMouseDown);
+
+        //track the laser beam as it encouters the optical elements
+        laserhit();
+
+        //render the scene
+        render();
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function resizeRendererToDisplaySize() {
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+            renderer.render(scene, camera);
+        }
+
+    </script>
 </body>
+
 </html>
